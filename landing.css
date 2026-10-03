@@ -177,7 +177,7 @@ h3 {
   background: #fdf8e6;
   border: 1px solid #f1e6bf;
   padding: 20px 28px;
-  margin: 40px 0;
+  margin: 56px 0;
   font-size: 19px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -207,7 +207,7 @@ h3 {
 .btn-wide {
   font-size: 32px;
   padding: 12px 20px;
-  margin: 32px 0;
+  margin: 56px 0;
 }
 
 .btn-side {
