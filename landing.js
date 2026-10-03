@@ -51,3 +51,14 @@ if (REVIEWS.length) {
   });
   document.getElementById("reviews-section").hidden = false;
 }
+
+// Keep the hero video playing (some browsers pause autoplay until the first interaction).
+const heroVideo = document.querySelector(".hero-video video");
+if (heroVideo) {
+  const play = () => heroVideo.play().catch(() => {});
+  play();
+  heroVideo.addEventListener("pause", play);
+  ["touchstart", "scroll", "click"].forEach((e) =>
+    window.addEventListener(e, play, { once: true, passive: true })
+  );
+}
