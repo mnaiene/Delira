@@ -1,7 +1,7 @@
 // ---- Edit these values ----
 const CONFIG = {
   // Your affiliate link (e.g. your HopLink). Every CTA on the page uses it.
-  ctaLink: "https://example.com/your-affiliate-link",
+  ctaLink: "https://abed7foog529cfqcpdu8q3060e.hop.clickbank.net",
   product: "Derila Ergo",
   // Keep these in line with the offer currently shown on the official site.
   offerShort: "on a limited-time sale",
