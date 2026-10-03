@@ -8,8 +8,6 @@ const CONFIG = {
   offerHeadline: "LIMITED TIME SALE: See Today's Discount on the Official Site",
   returnDays: 60,
   published: "October 3, 2026",
-  operator: "Your Company Name",
-  email: "you@example.com",
 };
 
 // Only add genuine reviews you have permission to use, e.g. from the vendor's affiliate resources.
@@ -26,15 +24,12 @@ fill("[data-product]", CONFIG.product);
 fill("[data-offer-short]", CONFIG.offerShort);
 fill("[data-offer-headline]", CONFIG.offerHeadline);
 fill("[data-return-days]", CONFIG.returnDays);
-fill("[data-operator]", CONFIG.operator);
 fill("[data-published]", CONFIG.published);
 
 document.querySelectorAll("[data-cta]").forEach((a) => {
   a.href = CONFIG.ctaLink;
   a.rel = "sponsored noopener";
 });
-
-document.querySelectorAll("[data-email]").forEach((a) => (a.href = `mailto:${CONFIG.email}`));
 
 if (REVIEWS.length) {
   const list = document.getElementById("reviews");

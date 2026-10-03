@@ -340,28 +340,6 @@ h3 {
   text-align: center;
 }
 
-/* Footer */
-.footer {
-  background: #3c3c3c;
-  color: #fff;
-  padding: 40px 16px;
-  font-size: 18px;
-  line-height: 1.4;
-}
-
-.footer-inner {
-  max-width: 1530px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-.footer a {
-  color: #fff;
-}
-
 /* Mobile sticky CTA */
 .mobile-cta {
   display: none;
