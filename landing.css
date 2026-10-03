@@ -162,6 +162,26 @@ h3 {
   -webkit-appearance: none;
 }
 
+/* Photo with caption */
+.photo {
+  margin: 24px 0 28px;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.photo figcaption {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  text-align: center;
+  margin-top: 8px;
+}
+
 /* Boxes */
 .cost-box {
   background: #fdf1f1;
