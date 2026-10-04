@@ -29,7 +29,19 @@ fill("[data-published]", CONFIG.published);
 document.querySelectorAll("[data-cta]").forEach((a) => {
   a.href = CONFIG.ctaLink;
   a.rel = "sponsored noopener";
+  a.addEventListener("click", trackCtaClick);
 });
+
+// Report CTA clicks to the Meta Pixel as InitiateCheckout, then follow the link.
+// The short delay gives the pixel request time to send before the page unloads.
+function trackCtaClick(e) {
+  if (typeof fbq !== "function") return;
+  fbq("track", "InitiateCheckout");
+  if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+  e.preventDefault();
+  const href = e.currentTarget.href;
+  setTimeout(() => (window.location.href = href), 300);
+}
 
 if (REVIEWS.length) {
   const list = document.getElementById("reviews");
