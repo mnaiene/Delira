@@ -9,7 +9,7 @@ const VALID_STATUS = ['em_andamento', 'concluido', 'cancelado'];
 const VALID_PAYMENT = ['dinheiro', 'mpesa', 'emola'];
 
 router.get('/', (req, res) => {
-  const { from, to, status } = req.query;
+  const { from, to, status, created_by } = req.query;
   let sql = `
     SELECT w.*, u.name AS created_by_name
     FROM wash_records w
@@ -20,6 +20,9 @@ router.get('/', (req, res) => {
   if (req.user.role !== 'admin') {
     sql += ' AND w.created_by = ?';
     params.push(req.user.sub);
+  } else if (created_by) {
+    sql += ' AND w.created_by = ?';
+    params.push(created_by);
   }
   if (from) {
     sql += ' AND w.served_at >= ?';

@@ -1,4 +1,4 @@
-# Delira — Sistema de Gerenciamento de Lava-Rápido
+# Kawash — Sistema de Gerenciamento de Lava-Rápido
 
 Sistema web para gerenciar um lava-rápido (carwash): registrar atendimentos
 (carros lavados), controlar despesas e acompanhar a receita diária, semanal e
@@ -24,7 +24,7 @@ O servidor sobe em `http://localhost:3000` (ou na porta definida em `PORT`).
 
 Na primeira execução é criado automaticamente um usuário administrador:
 
-- **E-mail:** `admin@delira.com`
+- **E-mail:** `admin@kawash.com`
 - **Senha:** `admin123`
 
 > Troque a senha depois de entrar, em "Trocar senha" no menu lateral.

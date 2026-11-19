@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'delira-dev-secret-change-me';
-const COOKIE_NAME = 'delira_token';
+const JWT_SECRET = process.env.JWT_SECRET || 'kawash-dev-secret-change-me';
+const COOKIE_NAME = 'kawash_token';
 
 function signToken(user) {
   return jwt.sign(

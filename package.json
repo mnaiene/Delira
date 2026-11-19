@@ -1,5 +1,5 @@
 {
-  "name": "delira-carwash",
+  "name": "kawash-carwash",
   "version": "1.0.0",
   "description": "Sistema de gerenciamento para lava-rápido (carwash): atendimentos, despesas e receitas.",
   "main": "server/index.js",

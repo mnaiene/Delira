@@ -38,12 +38,19 @@ async function loadUsuarios() {
         <td>${ROLE_LABELS[u.role] || u.role}</td>
         <td><span class="badge ${u.active ? 'concluido' : 'cancelado'}">${u.active ? 'Ativo' : 'Inativo'}</span></td>
         <td class="row-actions">
+          <button data-history="${u.id}">Histórico</button>
           <button data-edit="${u.id}">Editar</button>
           ${u.id === currentUser.id ? '' : `<button data-toggle="${u.id}" data-active="${u.active}" class="danger">${u.active ? 'Desativar' : 'Reativar'}</button>`}
         </td>
       </tr>
     `).join('');
 
+    body.querySelectorAll('[data-history]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const row = rows.find((u) => u.id === Number(btn.dataset.history));
+        renderHistoricoPage(document.getElementById('main-content'), row);
+      });
+    });
     body.querySelectorAll('[data-edit]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const row = rows.find((u) => u.id === Number(btn.dataset.edit));

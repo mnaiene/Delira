@@ -69,7 +69,7 @@ if (!userColumns.includes('active')) {
 function seed() {
   const userCount = db.prepare('SELECT COUNT(*) AS n FROM users').get().n;
   if (userCount === 0) {
-    const email = process.env.ADMIN_EMAIL || 'admin@delira.com';
+    const email = process.env.ADMIN_EMAIL || 'admin@kawash.com';
     const password = process.env.ADMIN_PASSWORD || 'admin123';
     const hash = bcrypt.hashSync(password, 10);
     db.prepare(

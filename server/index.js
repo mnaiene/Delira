@@ -30,5 +30,5 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Delira Carwash rodando em http://localhost:${PORT}`);
+  console.log(`Kawash rodando em http://localhost:${PORT}`);
 });
