@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('../db');
+const asyncRoute = require('../asyncRoute');
 const { requireAuth } = require('../auth');
 
 const router = express.Router();
@@ -8,7 +9,7 @@ router.use(requireAuth);
 const VALID_STATUS = ['em_andamento', 'concluido', 'cancelado'];
 const VALID_PAYMENT = ['dinheiro', 'mpesa', 'emola'];
 
-router.get('/', (req, res) => {
+router.get('/', asyncRoute(async (req, res) => {
   const { from, to, status, created_by } = req.query;
   let sql = `
     SELECT w.*, u.name AS created_by_name
@@ -37,16 +38,16 @@ router.get('/', (req, res) => {
     params.push(status);
   }
   sql += ' ORDER BY w.served_at DESC, w.id DESC LIMIT 500';
-  res.json(db.prepare(sql).all(...params));
-});
+  res.json(await db.all(sql, params));
+}));
 
-router.post('/', (req, res) => {
+router.post('/', asyncRoute(async (req, res) => {
   const body = req.body || {};
   let { service_id, service_name, price, customer_name, vehicle_plate, vehicle_model,
     vehicle_type, payment_method, status, notes, served_at } = body;
 
   if (service_id) {
-    const svc = db.prepare('SELECT * FROM services WHERE id = ?').get(service_id);
+    const svc = await db.get('SELECT * FROM services WHERE id = ?', [service_id]);
     if (svc) {
       service_name = service_name || svc.name;
       if (price === undefined || price === null) price = svc.price;
@@ -61,22 +62,22 @@ router.post('/', (req, res) => {
   vehicle_type = vehicle_type || 'carro';
   served_at = served_at || new Date().toISOString().slice(0, 10);
 
-  const result = db.prepare(`
+  const result = await db.run(`
     INSERT INTO wash_records
       (service_id, service_name, price, customer_name, vehicle_plate, vehicle_model,
        vehicle_type, payment_method, status, notes, created_by, served_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
+  `, [
     service_id || null, service_name.trim(), price, customer_name || null,
     vehicle_plate ? vehicle_plate.toUpperCase().trim() : null, vehicle_model || null,
-    vehicle_type, payment_method, status, notes || null, req.user.sub, served_at
-  );
+    vehicle_type, payment_method, status, notes || null, req.user.sub, served_at,
+  ]);
 
-  res.status(201).json(db.prepare('SELECT * FROM wash_records WHERE id = ?').get(result.lastInsertRowid));
-});
+  res.status(201).json(await db.get('SELECT * FROM wash_records WHERE id = ?', [result.lastInsertRowid]));
+}));
 
-router.put('/:id', (req, res) => {
-  const existing = db.prepare('SELECT * FROM wash_records WHERE id = ?').get(req.params.id);
+router.put('/:id', asyncRoute(async (req, res) => {
+  const existing = await db.get('SELECT * FROM wash_records WHERE id = ?', [req.params.id]);
   if (!existing) return res.status(404).json({ error: 'Atendimento não encontrado' });
   if (req.user.role !== 'admin' && existing.created_by !== req.user.sub) {
     return res.status(403).json({ error: 'Você só pode editar atendimentos que você registrou' });
@@ -96,25 +97,25 @@ router.put('/:id', (req, res) => {
     served_at: body.served_at || existing.served_at,
   };
 
-  db.prepare(`
+  await db.run(`
     UPDATE wash_records SET service_name=?, price=?, customer_name=?, vehicle_plate=?, vehicle_model=?,
       vehicle_type=?, payment_method=?, status=?, notes=?, served_at=? WHERE id=?
-  `).run(
+  `, [
     next.service_name, next.price, next.customer_name, next.vehicle_plate, next.vehicle_model,
-    next.vehicle_type, next.payment_method, next.status, next.notes, next.served_at, existing.id
-  );
+    next.vehicle_type, next.payment_method, next.status, next.notes, next.served_at, existing.id,
+  ]);
 
-  res.json(db.prepare('SELECT * FROM wash_records WHERE id = ?').get(existing.id));
-});
+  res.json(await db.get('SELECT * FROM wash_records WHERE id = ?', [existing.id]));
+}));
 
-router.delete('/:id', (req, res) => {
-  const existing = db.prepare('SELECT * FROM wash_records WHERE id = ?').get(req.params.id);
+router.delete('/:id', asyncRoute(async (req, res) => {
+  const existing = await db.get('SELECT * FROM wash_records WHERE id = ?', [req.params.id]);
   if (!existing) return res.status(404).json({ error: 'Atendimento não encontrado' });
   if (req.user.role !== 'admin' && existing.created_by !== req.user.sub) {
     return res.status(403).json({ error: 'Você só pode excluir atendimentos que você registrou' });
   }
-  db.prepare('DELETE FROM wash_records WHERE id = ?').run(existing.id);
+  await db.run('DELETE FROM wash_records WHERE id = ?', [existing.id]);
   res.json({ ok: true });
-});
+}));
 
 module.exports = router;
