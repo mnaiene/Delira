@@ -14,6 +14,9 @@ router.post('/login', (req, res) => {
   if (!user || !bcrypt.compareSync(password, user.password_hash)) {
     return res.status(401).json({ error: 'Email ou senha inválidos' });
   }
+  if (!user.active) {
+    return res.status(401).json({ error: 'Usuário desativado. Fale com o administrador.' });
+  }
   const token = signToken(user);
   setAuthCookie(res, token);
   res.json({ id: user.id, name: user.name, email: user.email, role: user.role });

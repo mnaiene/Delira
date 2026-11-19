@@ -37,10 +37,10 @@ async function renderAtendimentosPage(container) {
           <thead>
             <tr>
               <th>Data</th><th>Serviço</th><th>Cliente</th><th>Veículo</th>
-              <th>Pagamento</th><th>Status</th><th class="num">Valor</th><th></th>
+              <th>Pagamento</th>${isAdminUser() ? '<th>Atendido por</th>' : ''}<th>Status</th><th class="num">Valor</th><th></th>
             </tr>
           </thead>
-          <tbody id="atendimentos-body"><tr><td colspan="8">Carregando...</td></tr></tbody>
+          <tbody id="atendimentos-body"><tr><td colspan="${isAdminUser() ? 9 : 8}">Carregando...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -73,8 +73,9 @@ async function loadAtendimentos() {
   const body = document.getElementById('atendimentos-body');
   try {
     const rows = await api.get('/atendimentos?' + params.toString());
+    const colspan = isAdminUser() ? 9 : 8;
     if (!rows.length) {
-      body.innerHTML = '<tr><td colspan="8" class="empty-msg">Nenhum atendimento no período.</td></tr>';
+      body.innerHTML = `<tr><td colspan="${colspan}" class="empty-msg">Nenhum atendimento no período.</td></tr>`;
       return;
     }
     body.innerHTML = rows.map((r) => `
@@ -84,8 +85,9 @@ async function loadAtendimentos() {
         <td>${r.customer_name || '-'}</td>
         <td>${r.vehicle_plate || '-'} ${r.vehicle_model ? '(' + r.vehicle_model + ')' : ''}</td>
         <td>${PAYMENT_LABELS[r.payment_method] || r.payment_method}</td>
+        ${isAdminUser() ? `<td>${r.created_by_name || '-'}</td>` : ''}
         <td><span class="badge ${r.status}">${STATUS_LABELS[r.status] || r.status}</span></td>
-        <td class="num">${formatBRL(r.price)}</td>
+        <td class="num">${formatMoney(r.price)}</td>
         <td class="row-actions">
           <button data-edit="${r.id}">Editar</button>
           <button data-del="${r.id}" class="danger">Excluir</button>
@@ -108,14 +110,14 @@ async function loadAtendimentos() {
       });
     });
   } catch (err) {
-    body.innerHTML = `<tr><td colspan="8" class="error-msg">Erro: ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="${isAdminUser() ? 9 : 8}" class="error-msg">Erro: ${err.message}</td></tr>`;
   }
 }
 
 function openAtendimentoModal(existing) {
   const isEdit = !!existing;
   const serviceOptions = _atServices.map((s) =>
-    `<option value="${s.id}" data-price="${s.price}" ${existing && existing.service_id === s.id ? 'selected' : ''}>${s.name} - ${formatBRL(s.price)}</option>`
+    `<option value="${s.id}" data-price="${s.price}" ${existing && existing.service_id === s.id ? 'selected' : ''}>${s.name} - ${formatMoney(s.price)}</option>`
   ).join('');
 
   const backdrop = document.createElement('div');
@@ -137,7 +139,7 @@ function openAtendimentoModal(existing) {
             <input id="f-service-name" value="${existing ? existing.service_name : ''}" />
           </div>
           <div class="field">
-            <label>Valor (R$)</label>
+            <label>Valor (MT)</label>
             <input id="f-price" type="number" step="0.01" min="0" value="${existing ? existing.price : ''}" required />
           </div>
           <div class="field">

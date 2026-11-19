@@ -32,7 +32,7 @@ async function loadServicos() {
     body.innerHTML = rows.map((r) => `
       <tr>
         <td>${r.name}</td>
-        <td class="num">${formatBRL(r.price)}</td>
+        <td class="num">${formatMoney(r.price)}</td>
         <td><span class="badge ${r.active ? 'concluido' : 'cancelado'}">${r.active ? 'Ativo' : 'Inativo'}</span></td>
         <td class="row-actions">
           <button data-edit="${r.id}">Editar</button>
@@ -73,7 +73,7 @@ function openServicoModal(existing) {
           <input id="f-name" value="${existing ? existing.name : ''}" required />
         </div>
         <div class="field">
-          <label>Preço (R$)</label>
+          <label>Preço (MT)</label>
           <input id="f-price" type="number" step="0.01" min="0" value="${existing ? existing.price : ''}" required />
         </div>
         ${isEdit ? `

@@ -10,8 +10,8 @@ function renderBarChart(container, series) {
     const heightPct = Math.max(2, Math.round((point.revenue / max) * 100));
     const label = new Date(point.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short' });
     col.innerHTML = `
-      <span class="bar-value">${point.revenue > 0 ? formatBRL(point.revenue).replace('R$', '').trim() : ''}</span>
-      <div class="bar" style="height:${heightPct}%" title="${formatDate(point.date)}: ${formatBRL(point.revenue)} (${point.cars} carro(s))"></div>
+      <span class="bar-value">${point.revenue > 0 ? formatMoney(point.revenue).replace(' MT', '') : ''}</span>
+      <div class="bar" style="height:${heightPct}%" title="${formatDate(point.date)}: ${formatMoney(point.revenue)} (${point.cars} carro(s))"></div>
       <span class="bar-label">${label.replace('.', '')}</span>
     `;
     chart.appendChild(col);
@@ -37,7 +37,7 @@ function renderBreakdown(container, rows, labelKey, valueKey, labelMap) {
     div.innerHTML = `
       <span class="bd-label">${label}</span>
       <span class="bd-track"><span class="bd-fill" style="width:${pct}%;background:${color}"></span></span>
-      <span class="bd-value">${formatBRL(row[valueKey])}</span>
+      <span class="bd-value">${formatMoney(row[valueKey])}</span>
     `;
     container.appendChild(div);
   });

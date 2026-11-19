@@ -1,9 +1,7 @@
 const PAYMENT_LABELS = {
   dinheiro: 'Dinheiro',
-  pix: 'Pix',
-  cartao_debito: 'Cartão Débito',
-  cartao_credito: 'Cartão Crédito',
-  outro: 'Outro',
+  mpesa: 'M-Pesa',
+  emola: 'e-Mola',
 };
 
 const EXPENSE_CATEGORY_LABELS = {

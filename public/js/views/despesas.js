@@ -70,14 +70,14 @@ async function loadDespesas() {
         <td>${formatDate(r.expense_date)}</td>
         <td>${r.description}</td>
         <td>${EXPENSE_CATEGORY_LABELS[r.category] || r.category}</td>
-        <td class="num">${formatBRL(r.amount)}</td>
+        <td class="num">${formatMoney(r.amount)}</td>
         <td class="row-actions">
           <button data-edit="${r.id}">Editar</button>
           <button data-del="${r.id}" class="danger">Excluir</button>
         </td>
       </tr>
     `).join('') + `
-      <tr><td colspan="3" style="font-weight:600">Total</td><td class="num" style="font-weight:600">${formatBRL(total)}</td><td></td></tr>
+      <tr><td colspan="3" style="font-weight:600">Total</td><td class="num" style="font-weight:600">${formatMoney(total)}</td><td></td></tr>
     `;
 
     body.querySelectorAll('[data-edit]').forEach((btn) => {
@@ -113,7 +113,7 @@ function openDespesaModal(existing) {
         </div>
         <div class="form-grid">
           <div class="field">
-            <label>Valor (R$)</label>
+            <label>Valor (MT)</label>
             <input id="f-amount" type="number" step="0.01" min="0" value="${existing ? existing.amount : ''}" required />
           </div>
           <div class="field">

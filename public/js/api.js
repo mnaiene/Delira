@@ -30,8 +30,12 @@ function toast(message) {
   setTimeout(() => el.remove(), 2600);
 }
 
-function formatBRL(value) {
-  return (value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+function formatMoney(value) {
+  const n = Number(value) || 0;
+  const negative = n < 0;
+  const [intPart, decPart] = Math.abs(n).toFixed(2).split('.');
+  const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (negative ? '-' : '') + withThousands + ',' + decPart + ' MT';
 }
 
 function formatDate(iso) {

@@ -17,6 +17,7 @@ db.exec(`
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'admin',
+    active INTEGER NOT NULL DEFAULT 1,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -58,6 +59,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_wash_records_served_at ON wash_records(served_at);
   CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(expense_date);
 `);
+
+// Migração: bancos criados antes da coluna 'active' existir em users
+const userColumns = db.prepare("PRAGMA table_info(users)").all().map((c) => c.name);
+if (!userColumns.includes('active')) {
+  db.exec("ALTER TABLE users ADD COLUMN active INTEGER NOT NULL DEFAULT 1");
+}
 
 function seed() {
   const userCount = db.prepare('SELECT COUNT(*) AS n FROM users').get().n;

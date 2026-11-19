@@ -1,9 +1,9 @@
 const express = require('express');
 const db = require('../db');
-const { requireAuth } = require('../auth');
+const { requireAuth, requireAdmin } = require('../auth');
 
 const router = express.Router();
-router.use(requireAuth);
+router.use(requireAuth, requireAdmin);
 
 const VALID_CATEGORIES = ['produtos', 'salarios', 'agua_luz', 'manutencao', 'aluguel', 'outros'];
 

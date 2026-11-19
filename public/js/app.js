@@ -1,11 +1,18 @@
-const PAGES = {
-  dashboard: { label: 'Dashboard', render: renderDashboardPage },
-  atendimentos: { label: 'Atendimentos', render: renderAtendimentosPage },
-  despesas: { label: 'Despesas', render: renderDespesasPage },
-  servicos: { label: 'Serviços', render: renderServicosPage },
-};
+const NAV_ITEMS = [
+  { key: 'dashboard', label: '📊 Dashboard', render: renderDashboardPage, roles: ['admin', 'funcionario'] },
+  { key: 'atendimentos', label: '🚗 Atendimentos', render: renderAtendimentosPage, roles: ['admin', 'funcionario'] },
+  { key: 'despesas', label: '💸 Despesas', render: renderDespesasPage, roles: ['admin'] },
+  { key: 'servicos', label: '🧽 Serviços', render: renderServicosPage, roles: ['admin'] },
+  { key: 'usuarios', label: '👤 Usuários', render: renderUsuariosPage, roles: ['admin'] },
+];
+
+const PAGES = Object.fromEntries(NAV_ITEMS.map((item) => [item.key, item]));
 
 let currentUser = null;
+
+function isAdminUser() {
+  return !!currentUser && currentUser.role === 'admin';
+}
 
 async function init() {
   try {
@@ -24,11 +31,26 @@ function showLogin() {
 function showApp() {
   document.getElementById('login-screen').classList.add('hidden');
   document.getElementById('app-shell').classList.remove('hidden');
-  document.getElementById('sidebar-user').textContent = currentUser.name;
+  document.getElementById('sidebar-user').textContent = currentUser.name + (isAdminUser() ? '' : ' (funcionário)');
+  renderNav();
   navigate('dashboard');
 }
 
+function renderNav() {
+  const nav = document.getElementById('nav-items');
+  nav.innerHTML = '';
+  NAV_ITEMS.filter((item) => item.roles.includes(currentUser.role)).forEach((item) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-item';
+    btn.dataset.page = item.key;
+    btn.textContent = item.label;
+    btn.addEventListener('click', () => navigate(item.key));
+    nav.appendChild(btn);
+  });
+}
+
 function navigate(page) {
+  if (!PAGES[page] || !PAGES[page].roles.includes(currentUser.role)) page = 'dashboard';
   document.querySelectorAll('.nav-item').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.page === page);
   });
@@ -48,10 +70,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   } catch (err) {
     errorEl.textContent = err.message;
   }
-});
-
-document.querySelectorAll('.nav-item[data-page]').forEach((btn) => {
-  btn.addEventListener('click', () => navigate(btn.dataset.page));
 });
 
 document.getElementById('logout-btn').addEventListener('click', async () => {

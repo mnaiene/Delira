@@ -38,8 +38,32 @@ function periodTotals(startDate, endDate) {
   };
 }
 
+function personalTotals(userId, startDate, endDate) {
+  const row = db.prepare(`
+    SELECT COALESCE(SUM(price), 0) AS total, COUNT(*) AS count
+    FROM wash_records
+    WHERE status = 'concluido' AND created_by = ? AND served_at BETWEEN ? AND ?
+  `).get(userId, startDate, endDate);
+  return { revenue: row.total, cars: row.count };
+}
+
 router.get('/summary', (req, res) => {
   const now = new Date();
+  const today0 = toISODate(now);
+  const weekStart0 = toISODate(startOfWeek(now));
+  const monthStart0 = today0.slice(0, 7) + '-01';
+
+  if (req.user.role !== 'admin') {
+    return res.json({
+      today: personalTotals(req.user.sub, today0, today0),
+      week: personalTotals(req.user.sub, weekStart0, today0),
+      month: personalTotals(req.user.sub, monthStart0, today0),
+      recent: db.prepare(`
+        SELECT * FROM wash_records WHERE created_by = ? ORDER BY served_at DESC, id DESC LIMIT 8
+      `).all(req.user.sub),
+    });
+  }
+
   const today = toISODate(now);
   const weekStart = toISODate(startOfWeek(now));
   const monthStart = today.slice(0, 7) + '-01';
@@ -85,8 +109,20 @@ router.get('/summary', (req, res) => {
     GROUP BY service_name ORDER BY total DESC LIMIT 5
   `).all(monthStart, today);
 
+  // Atendimentos por funcionário (este mês)
+  result.employeeBreakdown = db.prepare(`
+    SELECT COALESCE(u.name, 'Sem usuário') AS employee_name, COUNT(*) AS count, COALESCE(SUM(w.price), 0) AS total
+    FROM wash_records w
+    LEFT JOIN users u ON u.id = w.created_by
+    WHERE w.status = 'concluido' AND w.served_at BETWEEN ? AND ?
+    GROUP BY w.created_by ORDER BY total DESC
+  `).all(monthStart, today);
+
   result.recent = db.prepare(`
-    SELECT * FROM wash_records ORDER BY served_at DESC, id DESC LIMIT 8
+    SELECT w.*, u.name AS created_by_name
+    FROM wash_records w
+    LEFT JOIN users u ON u.id = w.created_by
+    ORDER BY w.served_at DESC, w.id DESC LIMIT 8
   `).all();
 
   res.json(result);

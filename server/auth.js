@@ -34,4 +34,11 @@ function requireAuth(req, res, next) {
   }
 }
 
-module.exports = { signToken, setAuthCookie, clearAuthCookie, requireAuth, COOKIE_NAME };
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Apenas o administrador pode fazer isso' });
+  }
+  next();
+}
+
+module.exports = { signToken, setAuthCookie, clearAuthCookie, requireAuth, requireAdmin, COOKIE_NAME };

@@ -34,17 +34,38 @@ Na primeira execução é criado automaticamente um usuário administrador:
 > (elas só têm efeito quando o banco ainda não tem nenhum usuário). Defina
 > também `JWT_SECRET` em produção (um valor aleatório e secreto).
 
+## Perfis de usuário
+
+- **Administrador:** acesso total — Dashboard completo (receita/gastos/lucro
+  por funcionário), Atendimentos (de todos), Despesas, Serviços e gestão de
+  Usuários (criar/editar/desativar funcionários).
+- **Funcionário:** só vê Dashboard simplificado (receita gerada e carros
+  atendidos por ele mesmo) e a tela de Atendimentos, onde só pode registrar e
+  editar/excluir os atendimentos que ele próprio criou. Não acessa Despesas,
+  Serviços nem Usuários.
+
+O administrador cria contas de funcionário em **Usuários**. Cada atendimento
+guarda quem o registrou, e isso aparece para o administrador na lista de
+Atendimentos (coluna "Atendido por") e no Dashboard (painel "Atendimentos por
+funcionário").
+
+Valores são exibidos em **Metical (MT)**. Formas de pagamento disponíveis:
+Dinheiro, M-Pesa e e-Mola.
+
 ## Funcionalidades
 
 - **Dashboard:** receita, gastos, lucro e carros atendidos de hoje, da semana
   e do mês; gráfico dos últimos 7 dias; formas de pagamento; gastos por
-  categoria; serviços mais pedidos; últimos atendimentos.
+  categoria; serviços mais pedidos; atendimentos por funcionário; últimos
+  atendimentos (admin). Versão simplificada para funcionários.
 - **Atendimentos:** registrar cada carro atendido (serviço, preço, cliente,
   placa, veículo, forma de pagamento, status), com filtro por período/status.
-- **Despesas:** registrar gastos (produtos, salários, água/luz, manutenção,
-  aluguel, outros), com filtro por período/categoria.
-- **Serviços:** catálogo de serviços com preço padrão, usado para preencher o
-  valor automaticamente ao registrar um atendimento.
+- **Despesas** (admin): registrar gastos (produtos, salários, água/luz,
+  manutenção, aluguel, outros), com filtro por período/categoria.
+- **Serviços** (admin): catálogo de serviços com preço padrão, usado para
+  preencher o valor automaticamente ao registrar um atendimento.
+- **Usuários** (admin): criar contas de funcionário, trocar senha deles,
+  ativar/desativar acesso.
 
 ## Estrutura do projeto
 
@@ -52,12 +73,13 @@ Na primeira execução é criado automaticamente um usuário administrador:
 server/
   index.js           Servidor Express (API + arquivos estáticos)
   db.js              Conexão SQLite, schema e seed inicial
-  auth.js            JWT / cookie de sessão
+  auth.js            JWT / cookie de sessão, requireAdmin
   routes/
     auth.js          Login, logout, trocar senha
-    services.js       CRUD de serviços
-    atendimentos.js   CRUD de atendimentos (carros atendidos)
-    despesas.js        CRUD de despesas
+    users.js          CRUD de usuários (admin)
+    services.js       CRUD de serviços (admin)
+    atendimentos.js   CRUD de atendimentos, com escopo por perfil
+    despesas.js        CRUD de despesas (admin)
     dashboard.js       Resumo agregado (receita/gastos/lucro/carros)
 public/
   index.html          SPA (login + app)

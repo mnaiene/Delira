@@ -6,25 +6,34 @@ const router = express.Router();
 router.use(requireAuth);
 
 const VALID_STATUS = ['em_andamento', 'concluido', 'cancelado'];
-const VALID_PAYMENT = ['dinheiro', 'pix', 'cartao_debito', 'cartao_credito', 'outro'];
+const VALID_PAYMENT = ['dinheiro', 'mpesa', 'emola'];
 
 router.get('/', (req, res) => {
   const { from, to, status } = req.query;
-  let sql = 'SELECT * FROM wash_records WHERE 1=1';
+  let sql = `
+    SELECT w.*, u.name AS created_by_name
+    FROM wash_records w
+    LEFT JOIN users u ON u.id = w.created_by
+    WHERE 1=1
+  `;
   const params = [];
+  if (req.user.role !== 'admin') {
+    sql += ' AND w.created_by = ?';
+    params.push(req.user.sub);
+  }
   if (from) {
-    sql += ' AND served_at >= ?';
+    sql += ' AND w.served_at >= ?';
     params.push(from);
   }
   if (to) {
-    sql += ' AND served_at <= ?';
+    sql += ' AND w.served_at <= ?';
     params.push(to);
   }
   if (status && VALID_STATUS.includes(status)) {
-    sql += ' AND status = ?';
+    sql += ' AND w.status = ?';
     params.push(status);
   }
-  sql += ' ORDER BY served_at DESC, id DESC LIMIT 500';
+  sql += ' ORDER BY w.served_at DESC, w.id DESC LIMIT 500';
   res.json(db.prepare(sql).all(...params));
 });
 
@@ -66,6 +75,9 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM wash_records WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Atendimento não encontrado' });
+  if (req.user.role !== 'admin' && existing.created_by !== req.user.sub) {
+    return res.status(403).json({ error: 'Você só pode editar atendimentos que você registrou' });
+  }
   const body = req.body || {};
 
   const next = {
@@ -95,6 +107,9 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   const existing = db.prepare('SELECT * FROM wash_records WHERE id = ?').get(req.params.id);
   if (!existing) return res.status(404).json({ error: 'Atendimento não encontrado' });
+  if (req.user.role !== 'admin' && existing.created_by !== req.user.sub) {
+    return res.status(403).json({ error: 'Você só pode excluir atendimentos que você registrou' });
+  }
   db.prepare('DELETE FROM wash_records WHERE id = ?').run(existing.id);
   res.json({ ok: true });
 });
