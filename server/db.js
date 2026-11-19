@@ -1,10 +1,15 @@
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
-const { createClient } = require('@libsql/client');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const usingTurso = !!process.env.TURSO_DATABASE_URL;
+
+// Em produção (Turso remoto) usamos o cliente "web": sem binário nativo,
+// só HTTP — funciona de forma confiável em serverless (Vercel). Localmente,
+// sem TURSO_DATABASE_URL definido, usamos o cliente padrão (Node), que
+// suporta abrir um arquivo .db local direto no disco.
+const { createClient } = usingTurso ? require('@libsql/client/web') : require('@libsql/client');
 
 if (!usingTurso && !fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
